@@ -1,6 +1,7 @@
 import { Model, DataTypes, Sequelize } from 'sequelize';
 
 export interface TrackAttributes {
+  rejectionReason?: string | null;
   blockchainTx?: string; // Blockchain transaction hash
   id: string;
   title: string;
@@ -22,6 +23,7 @@ export interface TrackAttributes {
 }
 
 export class Track extends Model<TrackAttributes> implements TrackAttributes {
+  public rejectionReason?: string | null;
   public blockchainTx?: string; // Blockchain transaction hash
   public id!: string;
   public title!: string;
@@ -111,6 +113,10 @@ export function initTrackModel(sequelize: Sequelize): typeof Track {
         type: DataTypes.ENUM('pending', 'approved', 'rejected', 'copyrighted'),
         allowNull: false,
         defaultValue: 'pending',
+      },
+      rejectionReason: {
+        type: DataTypes.TEXT,
+        allowNull: true,
       },
     },
     {

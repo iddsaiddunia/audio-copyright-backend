@@ -23,6 +23,10 @@ module.exports = {
         allowNull: false,
         defaultValue: 'pending',
       },
+      rejectionReason: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
       fingerprint: {
         type: Sequelize.STRING,
         allowNull: true,

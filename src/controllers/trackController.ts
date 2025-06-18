@@ -260,7 +260,7 @@ export async function rejectTrack(req: Request, res: Response) {
     const track = await Track.findByPk(id);
     if (!track || track.status !== 'pending') return res.status(404).json({ error: 'Track not found or not pending' });
     track.status = 'rejected';
-    // Optionally, store rejection reason somewhere (not in schema yet)
+    track.rejectionReason = reason;
     await track.save();
     res.json(track);
   } catch (err) {
