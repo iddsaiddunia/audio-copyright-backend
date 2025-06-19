@@ -71,7 +71,7 @@ import paymentRoutes from './routes/payment';
 app.use('/api/payments', paymentRoutes);
 // Transfer routes
 import transferRoutes from './routes/transfer';
-app.use('/api/transfer', transferRoutes);
+app.use('/api/transfers', transferRoutes);
 // Licensing routes
 import licensingRoutes from './routes/licensing';
 app.use('/api/licensing', licensingRoutes);

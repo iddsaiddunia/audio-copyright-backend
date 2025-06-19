@@ -6,7 +6,7 @@ import { seedSystemSettingsIfNeeded } from './models/systemSetting';
 const PORT = process.env.PORT || 4000;
 
 // Sync database and start server (auto-migrate in dev)
-sequelize.sync({ alter: true }).then(async () => {
+sequelize.sync().then(async () => {
   // Only seed after all tables are created
   await seedSystemSettingsIfNeeded();
   app.listen(PORT, () => {

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { listUsers, createAdminUser, updateUser, updateUserStatus, verifyArtist, deleteUser } from '../controllers/userController';
+import { listUsers, createAdminUser, updateUser, updateUserStatus, verifyArtist, deleteUser, searchUsers } from '../controllers/userController';
 import { authenticateJWT } from '../middleware/auth';
 import { requireRole, requireAnyAdminType } from '../middleware/roles';
 
@@ -16,6 +16,9 @@ router.get('/me', getCurrentUser);
 
 // List users
 router.get('/', listUsers);
+
+// Search users by email
+router.get('/search', searchUsers);
 // Create admin user
 router.post('/', createAdminUser);
 // Update user info

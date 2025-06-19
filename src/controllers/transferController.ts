@@ -118,7 +118,12 @@ export async function requestTransfer(req: Request, res: Response) {
 
     // Only the current owner can initiate the transfer
     const user = req.user as User;
-    if (track.artistId !== user.id) return res.status(403).json({ error: 'You are not the owner of this track' });
+    console.log(`[TRANSFER DEBUG] Authenticated User ID: ${user.id}`);
+    console.log(`[TRANSFER DEBUG] Track Owner ID (artistId): ${track.artistId}`);
+    if (track.artistId !== user.id) {
+      console.log(`[TRANSFER DEBUG] Ownership check FAILED. User ${user.id} is not owner ${track.artistId}.`);
+      return res.status(403).json({ error: 'You are not the owner of this track' });
+    }
 
     // Check if an OwnershipTransfer already exists and is not published
     let transfer = await OwnershipTransfer.findOne({

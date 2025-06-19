@@ -60,6 +60,26 @@ export async function listUsers(req: Request, res: Response) {
   }
 }
 
+// Search for users by email
+export async function searchUsers(req: Request, res: Response) {
+  try {
+    const { email } = req.query;
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({ error: 'Email query parameter is required.' });
+    }
+    const users = await User.findAll({
+      where: {
+        email: email,
+      },
+      attributes: ['id', 'firstName', 'lastName', 'email', 'role'],
+    });
+    res.json(users);
+  } catch (err) {
+    console.error('Search users error:', err);
+    res.status(500).json({ error: 'Failed to search for users.' });
+  }
+}
+
 
 // Create a new admin user
 export async function createAdminUser(req: Request, res: Response) {
