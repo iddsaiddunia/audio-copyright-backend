@@ -10,6 +10,18 @@ export function requireRole(role: string) {
   };
 }
 
+// Allow any role in the provided array (e.g., 'artist', 'licensee')
+export function requireAnyRole(roles: string[]) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user as any;
+    if (!user || !roles.includes(user.role)) {
+      return res.status(403).json({ error: 'Forbidden: insufficient privileges' });
+    }
+    next();
+  };
+}
+
+
 // Allow any adminType in the provided array
 export function requireAnyAdminType(types: string[]) {
   return (req: Request, res: Response, next: NextFunction) => {

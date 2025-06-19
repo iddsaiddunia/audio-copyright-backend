@@ -147,3 +147,67 @@ export async function generateInvoice(req: Request, res: Response) {
   }
 }
 
+// Admin: Global financial metrics endpoint
+export async function getGlobalFinancialMetrics(req: import('express').Request, res: import('express').Response) {
+  try {
+    // Only allow admin users
+    const user = req.user as any;
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden: admin only' });
+    }
+    // 1. Total revenue (sum of all approved payments)
+    const totalRevenue = await Payment.sum('amount', { where: { status: 'approved' } });
+    // 2. Monthly revenue for last 6 months
+    const { Op } = require('sequelize');
+    const now = new Date();
+    const months = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months.push({
+        year: d.getFullYear(),
+        month: d.getMonth(),
+        label: d.toLocaleString('default', { month: 'short', year: 'numeric' }),
+        start: new Date(d.getFullYear(), d.getMonth(), 1),
+        end: new Date(d.getFullYear(), d.getMonth() + 1, 1)
+      });
+    }
+    const monthlyRevenue = [];
+    for (const m of months) {
+      const sum = await Payment.sum('amount', {
+        where: {
+          status: 'approved',
+          paidAt: { [Op.gte]: m.start, [Op.lt]: m.end }
+        }
+      });
+      monthlyRevenue.push({
+        month: m.label,
+        revenue: sum || 0
+      });
+    }
+    // 3. Recent transactions (last 10 approved payments)
+    const recentTransactions = await Payment.findAll({
+      where: { status: 'approved' },
+      order: [['paidAt', 'DESC']],
+      limit: 10
+    });
+    // 4. Summary by payment type
+    const paymentTypes = ['registration', 'licensing', 'transfer'];
+    const typeSummary = {} as Record<string, { count: number; total: number }>;
+    for (const type of paymentTypes) {
+      const [count, total] = await Promise.all([
+        Payment.count({ where: { status: 'approved', paymentType: type } }),
+        Payment.sum('amount', { where: { status: 'approved', paymentType: type } })
+      ]);
+      typeSummary[type] = { count, total: total || 0 };
+    }
+    res.json({
+      totalRevenue: totalRevenue || 0,
+      monthlyRevenue,
+      recentTransactions,
+      typeSummary
+    });
+  } catch (err) {
+    console.error('getGlobalFinancialMetrics error:', err);
+    res.status(500).json({ error: 'Failed to fetch global financial metrics', details: err instanceof Error ? err.message : err });
+  }
+}

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authenticateJWT } from '../middleware/auth';
-import { requireRole } from '../middleware/roles';
-import { createPayment, listAllPayments, approvePayment, rejectPayment, generateInvoice, listArtistPayments } from '../controllers/paymentController';
+import { requireRole, requireAnyAdminType } from '../middleware/roles';
+import { createPayment, listAllPayments, approvePayment, rejectPayment, generateInvoice, listArtistPayments, getGlobalFinancialMetrics } from '../controllers/paymentController';
 
 const router = Router();
 
@@ -31,5 +31,8 @@ router.post('/:id/reject', authenticateJWT, requireRole('financial'), rejectPaym
 
 // Generate invoice for a payment
 router.post('/:id/invoice', authenticateJWT, generateInvoice);
+
+// Admin: Global financial metrics
+router.get('/metrics/global', authenticateJWT, requireAnyAdminType(['financial', 'super', 'technical', 'content']), getGlobalFinancialMetrics);
 
 export default router;

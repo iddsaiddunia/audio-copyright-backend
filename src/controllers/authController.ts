@@ -32,6 +32,26 @@ export async function register(req: Request, res: Response) {
     if (password !== confirmPassword) {
       return res.status(400).json({ error: 'Passwords do not match' });
     }
+
+    // Validate National ID format
+    const idNumberRegex = /^\d{4}-\d{14}-\d{3}$/;
+    if (!idNumberRegex.test(idNumber)) {
+        return res.status(400).json({ error: 'Invalid National ID number format. Expected format: YYYY-##############-###' });
+    }
+
+    // Validate Phone Number format
+    const phoneRegex = /^\+?\d{10,15}$/;
+    if(!phoneRegex.test(phoneNumber)) {
+        return res.status(400).json({ error: 'Invalid phone number format. Please enter a valid phone number with country code.' });
+    }
+
+    // Enforce strong password policy
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({ 
+        error: 'Password is not strong enough. It must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.' 
+      });
+    }
     if (!acceptTerms) {
       return res.status(400).json({ error: 'You must accept the terms and conditions' });
     }
